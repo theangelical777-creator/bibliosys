@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Libro {
+  id              String     @id @default(uuid())
+  isbn            String     @unique
+  titulo          String
+  autor           String
+  editorial       String
+  anio            Int
+  categoria       String
+  stockTotal      Int
+  stockDisponible Int
+  estado          String     // "disponible" | "agotado" | "de_baja"
+  prestamos       Prestamo[]
+  reservas        Reserva[]
+}
+
+model Usuario {
+  id               String     @id @default(uuid())
+  nombre           String
+  email            String     @unique
+  passwordHash     String
+  telefono         String
+  tipo             String     // "estudiante" | "profesor" | "visitante"
+  estado           String     // "activo" | "suspendido" | "inactivo"
+  multasPendientes Float      @default(0.0)
+  fechaRegistro    DateTime   @default(now())
+  rol              String     // "ADMIN" | "BIBLIOTECARIO" | "SOCIO"
+  prestamos        Prestamo[]
+  multas           Multa[]
+  reservas         Reserva[]
+}
+
+model Prestamo {
+  id               String     @id @default(uuid())
+  libroId          String
+  usuarioId        String
+  fechaPrestamo    DateTime   @default(now())
+  fechaVencimiento DateTime
+  fechaDevolucion  DateTime?
+  estado           String     // "pendiente" | "activo" | "vencido" | "renovado" | "devuelto"
+  renovaciones     Int        @default(0)
+  nota             String?
+  
+  libro            Libro      @relation(fields: [libroId], references: [id])
+  usuario          Usuario    @relation(fields: [usuarioId], references: [id])
+  multas           Multa[]
+}
+
+model Multa {
+  id          String    @id @default(uuid())
+  prestamoId  String
+  usuarioId   String
+  diasRetraso Int
+  monto       Float
+  estado      String    // "pendiente" | "pagada"
+  
+  prestamo    Prestamo  @relation(fields: [prestamoId], references: [id])
+  usuario     Usuario   @relation(fields: [usuarioId], references: [id])
+}
+
+model Reserva {
+  id           String   @id @default(uuid())
+  libroId      String
+  usuarioId    String
+  fechaReserva DateTime @default(now())
+  estado       String   // "en_espera" | "notificado" | "cancelado" | "completado"
+  
+  libro        Libro    @relation(fields: [libroId], references: [id])
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+model LogAccion {
+  id          String   @id @default(uuid())
+  commandName String
+  details     String
+  undoData    String   // Guardado como JSON en formato string
+  fecha       DateTime @default(now())
+  reversado   Boolean  @default(false)
+}
