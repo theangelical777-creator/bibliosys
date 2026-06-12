@@ -18,6 +18,7 @@ import { UsuarioService } from './services/UsuarioService';
 import { PrestamoService } from './services/PrestamoService';
 import { MultaService } from './services/MultaService';
 import { ReservaService } from './services/ReservaService';
+import { seedDatabaseIfEmpty } from './services/SeedDbService';
 
 // Controllers
 import { AuthController } from './controllers/AuthController';
@@ -36,6 +37,7 @@ app.use(express.json());
 
 // Inicializar Prisma Client
 const prisma = new PrismaClient();
+seedDatabaseIfEmpty(prisma);
 
 // Inicializar Capa de Repositorios (Repository Pattern)
 const libroRepo = new LibroRepository(prisma);
