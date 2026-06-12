@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: bibliosys-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: bibliosys-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: PORT
+        value: 3000
+
+databases:
+  - name: bibliosys-db
+    plan: free
+    databaseName: bibliosys
+    user: bibliosys_user
