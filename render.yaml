@@ -16,8 +16,19 @@ services:
       - key: PORT
         value: 3000
 
+  - type: web
+    name: bibliosys-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_URL
+        value: https://bibliosys-backend.onrender.com/api
+
 databases:
   - name: bibliosys-db
     plan: free
     databaseName: bibliosys
     user: bibliosys_user
+
